@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { Todo } from './modal/Todo';
+import { URL, getService, postService } from './Util/Common';
+import AddButton from './partial/AddButton';
+import InputBox from './partial/InputBox';
 
-const URL = "http://localhost:8080/todo"
+
 
 function App() {
 
@@ -14,34 +17,25 @@ function App() {
     setItem(event.target.value);
   };
 
-  const onClick = () => {
+  const onClick = async () => {
     const data = {
       todoItem: item,
     };
-    fetch(`${URL}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    }).then((r) => r.json()).then((todo: Todo) => {
-      setTodos([todo, ...todos]);
-      setItem('');
-    });
+    const todo = await postService(URL, data);
+    setTodos([todo, ...todos]);
+    setItem('');
   }
 
   useEffect(() => {
-    fetch(`${URL}`)
-    .then(response => response.json())
-    .then((r: Todo[]) => setTodos(r));
+    getService(URL).then(response => setTodos(response));
   },[])
 
   return (
     <div className="App">
-      <h1>What are your plans?</h1>
+      <h1 className='header'>What are your plans?</h1>
       <div>
-        <input type="text" value={item} onChange={handleChange} />
-        <button onClick={onClick}>Add</button>
+        <InputBox onChange = {handleChange} value ={item} type={`text`}/>
+        <AddButton onClick={onClick}/>
       </div>
     
       <ul>
